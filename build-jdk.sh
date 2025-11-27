@@ -3,11 +3,11 @@ set -e
 
 if [ "x$JAVA_HOME_VERSION" == "x" ]; then
   if ! [ -f $JAVA_HOME/bin/javac ]; then
-    if ! [ -f $JAVA_HOME17/bin/javac ]; then
+    if ! [ -f $JAVA_HOME25/bin/javac ]; then
       echo Specify JAVA_HOME environment variable!
       exit 1
     fi
-    JAVA_HOME_VERSION=$JAVA_HOME17
+    JAVA_HOME_VERSION=$JAVA_HOME25
   else
     JAVA_HOME_VERSION=$JAVA_HOME
   fi
