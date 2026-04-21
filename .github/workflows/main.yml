@@ -14,18 +14,19 @@ jobs:
             distribution: 'zulu'
             java-version: '25'
 
-      - name: Build JARs
-        # This will now include your javax and com.sun tools based on your edits
-        run: ant -f make/langtools/netbeans/nb-javac clean jar
+      - name: Build JARs and Patched Sources
+        run: |
+          ant -f make/langtools/netbeans/nb-javac clean jar zip-nb-javac-sources
 
       - name: Verify with build-jdk.sh
-        # Keeps the logic for stripping module hashes and testing the image
         run: |
           chmod +x ./build-jdk.sh
           JAVA_HOME_VERSION=$JAVA_HOME ./build-jdk.sh
 
-      - name: Upload Results
+      - name: Upload Artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: nb-javac-artifacts
-          path: make/langtools/netbeans/nb-javac/dist/*.jar
+          name: nb-javac-complete-package
+          path: |
+            make/langtools/netbeans/nb-javac/dist/*.jar
+            make/langtools/netbeans/nb-javac/dist/*.zip
