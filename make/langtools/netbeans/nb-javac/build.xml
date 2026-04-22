@@ -99,11 +99,16 @@
                         <or>
                             <filename name="java.compiler/**"/>
                             <filename name="jdk.compiler/**"/>
-                            <!-- Added newly requested modules -->
                             <filename name="jdk.jdeps/**"/>
                             <filename name="jdk.jlink/**"/>
                             <filename name="jdk.jshell/**"/>
                             <filename name="jdk.javadoc/**"/>
+                            
+                            <!-- NEW: Pull in the Classfile and Constant APIs required by modern javap -->
+                            <filename name="java.base/share/classes/java/lang/classfile/**"/>
+                            <filename name="java.base/share/classes/java/lang/constant/**"/>
+                            <filename name="java.base/share/classes/jdk/internal/classfile/**"/>
+                            <filename name="java.base/share/classes/jdk/internal/constant/**"/>
                         </or>
                         <containsregexp expression="particular *file *as *subject *to *the.*Classpath.*exception"/>
                     </and>
