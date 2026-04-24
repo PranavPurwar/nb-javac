@@ -5,6 +5,67 @@
 <project name="nb-javac" default="default" basedir="." xmlns:j2seproject3="http://www.netbeans.org/ns/j2se-project/3" >
     <description>Builds, tests, and runs the project nb-javac.</description>
     <import file="nbproject/build-impl.xml"/>
+    <!--
+
+    There exist several targets which are by default empty and which can be
+    used for execution of your tasks. These targets are usually executed
+    before and after some main targets. They are:
+
+      -pre-init:                 called before initialization of project properties
+      -post-init:                called after initialization of project properties
+      -pre-compile:              called before javac compilation
+      -post-compile:             called after javac compilation
+      -pre-compile-single:       called before javac compilation of single file
+      -post-compile-single:      called after javac compilation of single file
+      -pre-compile-test:         called before javac compilation of JUnit tests
+      -post-compile-test:        called after javac compilation of JUnit tests
+      -pre-compile-test-single:  called before javac compilation of single JUnit test
+      -post-compile-test-single: called after javac compilation of single JUunit test
+      -pre-jar:                  called before JAR building
+      -post-jar:                 called after JAR building
+      -post-clean:               called after cleaning build products
+
+    (Targets beginning with '-' are not intended to be called on their own.)
+
+    Example of inserting an obfuscator after compilation could look like this:
+
+        <target name="-post-compile">
+            <obfuscate>
+                <fileset dir="${build.classes.dir}"/>
+            </obfuscate>
+        </target>
+
+    For list of available properties check the imported
+    nbproject/build-impl.xml file.
+
+
+    Another way to customize the build is by overriding existing main targets.
+    The targets of interest are:
+
+      -init-macrodef-javac:     defines macro for javac compilation
+      -init-macrodef-junit:     defines macro for junit execution
+      -init-macrodef-debug:     defines macro for class debugging
+      -init-macrodef-java:      defines macro for class execution
+      -do-jar-with-manifest:    JAR building (if you are using a manifest)
+      -do-jar-without-manifest: JAR building (if you are not using a manifest)
+      run:                      execution of project
+      -javadoc-build:           Javadoc generation
+      test-report:              JUnit report generation
+
+    An example of overriding the target for project execution could look like this:
+
+        <target name="run" depends="nb-javac-impl.jar">
+            <exec dir="bin" executable="launcher.exe">
+                <arg file="${dist.jar}"/>
+            </exec>
+        </target>
+
+    Notice that the overridden target depends on the jar target and not only on
+    the compile target as the regular run target does. Again, for a list of available
+    properties which you can use, check the target you are overriding in the
+    nbproject/build-impl.xml file.
+
+    -->
     
     <fail message="This build requires Ant version 1.9.9 at least!">
         <condition>
@@ -99,16 +160,6 @@
                         <or>
                             <filename name="java.compiler/**"/>
                             <filename name="jdk.compiler/**"/>
-                            <filename name="jdk.jdeps/**"/>
-                            <filename name="jdk.jlink/**"/>
-                            <filename name="jdk.jshell/**"/>
-                            <filename name="jdk.javadoc/**"/>
-                            
-                            <!-- NEW: Pull in the Classfile and Constant APIs required by modern javap -->
-                            <filename name="java.base/share/classes/java/lang/classfile/**"/>
-                            <filename name="java.base/share/classes/java/lang/constant/**"/>
-                            <filename name="java.base/share/classes/jdk/internal/classfile/**"/>
-                            <filename name="java.base/share/classes/jdk/internal/constant/**"/>
                         </or>
                         <containsregexp expression="particular *file *as *subject *to *the.*Classpath.*exception"/>
                     </and>
@@ -135,19 +186,13 @@
             <arg value="-hint-file"/>
             <arg value="${root}/make/langtools/netbeans/nb-javac/src/META-INF/upgrade/nbjavac.hint"/>
             <arg value="-sourcepath"/>
-            <!-- Appended the new module paths to the sourcepath argument -->
-            <arg value="${root}/make/langtools/netbeans/nb-javac/src/:${src.dir}/jdk.compiler/share/classes/:${src.dir}/java.compiler/share/classes:${src.dir}/java.base/share/classes:${src.dir}/jdk.jdeps/share/classes:${src.dir}/jdk.jlink/share/classes:${src.dir}/jdk.jshell/share/classes:${src.dir}/jdk.javadoc/share/classes"/>
+            <arg value="${root}/make/langtools/netbeans/nb-javac/src/:${src.dir}/jdk.compiler/share/classes/:${src.dir}/java.compiler/share/classes:${src.dir}/java.base/share/classes"/>
             <arg value="-source"/>
             <arg value="8"/>
             <arg value="--apply"/>
             <arg value="${src.dir}/java.base/share/classes"/>
             <arg value="${src.dir}/java.compiler/share/classes"/>
             <arg value="${src.dir}/jdk.compiler/share/classes"/>
-            <!-- Appended the new modules for Jackpot to apply hints against -->
-            <arg value="${src.dir}/jdk.jdeps/share/classes"/>
-            <arg value="${src.dir}/jdk.jlink/share/classes"/>
-            <arg value="${src.dir}/jdk.jshell/share/classes"/>
-            <arg value="${src.dir}/jdk.javadoc/share/classes"/>
         </java>
         <echo file="${src.dir}/jackpot-done">Jackpot done!</echo>
     </target>
@@ -182,8 +227,7 @@
                 <condition property="zdr.@{destdir}" value="test">
                     <equals arg1="build/test/classes" arg2="@{destdir}"/>
                 </condition>
-                <!-- Added the new modules to the compilation root property -->
-                <property name="zdr.@{destdir}" value="src,../../../../src/java.base/share/classes,../../../../src/java.compiler/share/classes,../../../../src/jdk.compiler/share/classes,../../../../src/jdk.jdeps/share/classes,../../../../src/jdk.jlink/share/classes,../../../../src/jdk.jshell/share/classes,../../../../src/jdk.javadoc/share/classes"/>
+                <property name="zdr.@{destdir}" value="src,../../../../src/java.base/share/classes,../../../../src/java.compiler/share/classes,../../../../src/jdk.compiler/share/classes"/>
                 <property location="${build.dir}/empty" name="empty.dir"/>
                 <mkdir dir="${empty.dir}"/>
                 <multirootfileset id="zdr.@{destdir}" basedirs="${zdr.@{destdir}}">
@@ -199,6 +243,9 @@
                     <arg value="${tools.dir}/compiler.jar"/>
                     <arg line="${javac.compilerargs}"/>
                     <arg value="-g"/>
+                    <!--
+                    <arg value="- -enable-preview"/>
+                    -->
                     <arg value="-encoding"/>
                     <arg value="UTF-8"/>
                     <arg value="-cp"/>
@@ -235,13 +282,14 @@
                 <attribute name="Multi-Release" value="true"/>
             </manifest>
             <fileset dir="${build.classes.dir}">
+               <!-- <include name="com/sun/javadoc/**/*"/> -->
                 <include name="com/sun/source/**/*"/>
                 <include name="javax/lang/**/*"/>
                 <include name="javax/tools/*"/>
                 <include name="jdk/internal/PreviewFeature*"/>
                 <include name="javax/annotation/**/*"/>
                 <include name="META-INF/versions/**"/>
-                <include name="javax/tools/**/*"/>
+				<include name="javax/tools/**/*"/>
                 <include name="javax/lang/**/*"/>
             </fileset>
             <fileset dir="${nb.javac.dir}">
@@ -254,7 +302,7 @@
             <fileset dir="${build.classes.dir}">
                 <include name="META-INF/services/**"/>
                 <include name="com/sun/tools/**/*"/>
-                <include name="jdk/internal/shellsupport/**/*"/>
+		<include name="jdk/internal/shellsupport/**/*"/>
                 <include name="jdk/internal/PreviewFeature*"/>
                 <include name="nbjavac/**"/>
             </fileset>
@@ -317,18 +365,12 @@
 
     <target name="-pre-compile-test" depends="jar"/>
 
-    <target name="zip-nb-javac-sources" depends="init,jackpot">
+	<target name="zip-nb-javac-sources" depends="init,jackpot">
         <zip destfile="dist/nb-javac-${nb-javac-ver}-sources.zip">
             <!-- 1. The Patched Java Compiler Sources (The ones Jackpot transformed) -->
             <zipfileset dir="${src.dir}/java.compiler/share/classes" prefix="src/java.compiler"/>
             <zipfileset dir="${src.dir}/jdk.compiler/share/classes" prefix="src/jdk.compiler"/>
             <zipfileset dir="${src.dir}/java.base/share/classes" prefix="src/java.base"/>
-            
-            <!-- Added newly requested modules into the zipped sources -->
-            <zipfileset dir="${src.dir}/jdk.jdeps/share/classes" prefix="src/jdk.jdeps"/>
-            <zipfileset dir="${src.dir}/jdk.jlink/share/classes" prefix="src/jdk.jlink"/>
-            <zipfileset dir="${src.dir}/jdk.jshell/share/classes" prefix="src/jdk.jshell"/>
-            <zipfileset dir="${src.dir}/jdk.javadoc/share/classes" prefix="src/jdk.javadoc"/>
             
             <!-- 2. The NetBeans/nb-javac specific glue code -->
             <zipfileset dir="src" prefix="make/langtools/netbeans/nb-javac/src"/>
@@ -340,6 +382,23 @@
             <include name="CONTRIBUTING.md"/>
         </zip>
     </target>
+
+    <!--
+        Publishing to maven central / OSSRH requires an account from sonatype.
+        The credentials for this account need to be made available to maven
+        using the configured id below.
+
+        With the credentials configured, running
+
+        ant publish-to-ossrh-snapshots
+
+        will publish to the snapshot repository.
+
+        ant publish-to-maven-central
+
+        will publish into a staging repository, that needs to be manually
+        released.
+    -->
 
     <property name="maven-snapshots-repository-id" value="oss.sonatype.org" />
     <property name="maven-snapshots-repository-url" value="https://oss.sonatype.org/content/repositories/snapshots/" />
