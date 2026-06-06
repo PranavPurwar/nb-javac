@@ -66,7 +66,7 @@
     nbproject/build-impl.xml file.
 
     -->
-    
+
     <fail message="This build requires Ant version 1.9.9 at least!">
         <condition>
             <not>
@@ -79,7 +79,7 @@
     <property name="jdk.repo" location="${root}/jdk"/>
     <property name="src.dir" location="${root}/src"/>
     <property name="tools.dir" location="${root}/lib"/>
-    
+
     <target name="-check-jdk.is.available">
         <available property="jdk.is.available" file="${jdk.repo}"/>
     </target>
@@ -99,7 +99,7 @@
             <arg value="${jdk.git.commit}"/>
         </exec>
     </target>
-    
+
     <target name="-pre-init">
         <mkdir dir="build/lib"/>
         <mkdir dir="${tools.dir}"/>
@@ -149,7 +149,7 @@
     <target name="-post-clean" unless="skip.jackpot.clean">
         <delete dir="${src.dir}"/>
     </target>
-        
+
     <target name="jackpot" depends="init,-check-jackpot.has.been.applied" unless="jackpot.has.been.applied">
         <delete dir="${src.dir}"/>
         <mkdir dir="${src.dir}"/>
@@ -266,7 +266,7 @@
 
     <!-- suppress javadoc generation for this library, as its wrappers do it -->
     <target name="-javadoc-build"/>
-    
+
     <target name="-separate-jars" depends="init">
         <copy  file="${build.classes.dir}/javax/lang/model/SourceVersion.class"
                tofile="${build.classes.dir}/META-INF/versions/11/javax/lang/model/SourceVersion.class"
@@ -289,6 +289,8 @@
                 <include name="jdk/internal/PreviewFeature*"/>
                 <include name="javax/annotation/**/*"/>
                 <include name="META-INF/versions/**"/>
+				<include name="javax/tools/**/*"/>
+                <include name="javax/lang/**/*"/>
             </fileset>
             <fileset dir="${nb.javac.dir}">
                     <include name="README.md"/>
@@ -314,7 +316,7 @@
         </jar>
         <delete file="${dist.jar}"/>
     </target>
-    
+
     <available file="${java.home}/bin/javap" property="javap.exe" value="${java.home}/bin/javap"/>
     <available file="${java.home}/bin/javap.exe" property="javap.exe" value="${java.home}/bin/javap.exe"/>
     <target name="-verify-source-version-classes" depends="-separate-jars" if="javap.exe">
@@ -363,25 +365,18 @@
 
     <target name="-pre-compile-test" depends="jar"/>
 
-    <target name="zip-nb-javac-sources" depends="init">
-        <zip basedir="../../../../" destfile="dist/nb-javac-${nb-javac-ver}-sources.zip">
-            <exclude name="**/build/"/>
-            <exclude name="**/dist/"/>
-            <exclude name="**/nbproject/private/"/>
-            <exclude name="**/nb-javac-sources.zip"/>
-            <include name="src/java.base/**"/>
-            <include name="src/jdk.compiler/**"/>
-            <include name="src/java.compiler/**"/>
-            <include name="make/langtools/netbeans/nb-javac/**"/>
+	<target name="zip-nb-javac-sources" depends="init,jackpot">
+        <zip destfile="dist/nb-javac-${nb-javac-ver}-sources.zip">
+            <zipfileset dir="${src.dir}/java.compiler/share/classes" prefix="src/java.compiler"/>
+            <zipfileset dir="${src.dir}/jdk.compiler/share/classes" prefix="src/jdk.compiler"/>
+            <zipfileset dir="${src.dir}/java.base/share/classes" prefix="src/java.base"/>
+
+            <zipfileset dir="src" prefix="make/langtools/netbeans/nb-javac/src"/>
+
             <include name="README.md"/>
             <include name="SECURITY.md"/>
             <include name="LICENSE.txt"/>
-            <include name=".hgignore"/>
-            <include name=".hgtags"/>
             <include name="CONTRIBUTING.md"/>
-            <include name="make/langtools/tools/**"/>
-            <include name="make/langtools/build.xml"/>
-            <include name="make/langtools/build.properties"/>
         </zip>
     </target>
 
@@ -463,7 +458,7 @@
         </fail>
     </target>
 
-    <target name="publish-to-maven-central" 
+    <target name="publish-to-maven-central"
             description="Build nb-javac and stage for maven central"
             depends="-prepare-maven-version,-prepare-maven">
 
